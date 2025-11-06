@@ -1,0 +1,63 @@
+# =========================
+#  Java / Maven / Spring Boot
+# =========================
+HELP.md
+target/
+build/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
+*.log
+*.class
+*.jar
+*.war
+*.ear
+
+# =========================
+#  Spring Tool Suite (STS)
+# =========================
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# =========================
+#  IntelliJ IDEA
+# =========================
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# =========================
+#  NetBeans
+# =========================
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# =========================
+#  Visual Studio Code
+# =========================
+.vscode/
+
+# =========================
+#  OS-specific junk
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+#  Environment / Secrets
+# =========================
+.env
+application-*.yml
+application-*.properties
