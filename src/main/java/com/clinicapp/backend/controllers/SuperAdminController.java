@@ -27,14 +27,14 @@ public class SuperAdminController {
 	// @PreAuthorize("hasRole('SUPERADMIN')")
 	@PostMapping("/create-clinic")
 	public String createClinic(@RequestBody CreateClinicRequest req) {
-		// 1️ Create and save clinic
+		// 1 Create and save clinic
 		Clinic clinic = new Clinic();
 		clinic.setName(req.getClinicName());
 		clinic.setEmail(req.getClinicEmail());
 		clinic.setAddress(req.getClinicAddress());
 		clinicRepo.save(clinic);
 
-		// 2️ Create and save admin doctor
+		// 2 Create and save admin doctor
 		Doctor admin = new Doctor();
 		admin.setName(req.getAdminName());
 		admin.setEmail(req.getAdminEmail());

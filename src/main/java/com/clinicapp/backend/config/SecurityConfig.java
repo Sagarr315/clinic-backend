@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
 	private final JwtFilter jwtFilter;
@@ -24,9 +24,15 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**", "/api/hello").permitAll()
-						.requestMatchers("/api/superadmin/**").permitAll().anyRequest().authenticated())
+		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth
+				// Public endpoints
+				.requestMatchers("/api/auth/login", "/api/hello", "/api/superadmin/**", "/api/appointments/book",
+						"/api/appointments/slots/**")
+				.permitAll()
+				// PROTECTED: Only authenticated admin doctors can access
+				.requestMatchers("/api/admin/**").authenticated()
+				// All other endpoints need authentication
+				.anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

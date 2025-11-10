@@ -1,3 +1,4 @@
+
 package com.clinicapp.backend.dto;
 
 public class AuthResponse {
@@ -14,7 +15,7 @@ public class AuthResponse {
 		this.clinicId = clinicId;
 	}
 
-	// getters / setters
+	// Getters and Setters
 	public String getToken() {
 		return token;
 	}
