@@ -15,4 +15,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
 	@Query("SELECT a.appointmentDate, a.status, d.name FROM Appointment a JOIN a.doctor d WHERE a.patient.id = :patientId ORDER BY a.appointmentDate DESC")
 	List<Object[]> findPatientHistory(Long patientId);
+
+    Long countByClinicId(Long clinicId);
+    Long countByClinicIdAndStatus(Long clinicId, String status);
+    Long countByDoctorId(Long doctorId);
+    Long countByDoctorIdAndStatus(Long doctorId, String status);
 }

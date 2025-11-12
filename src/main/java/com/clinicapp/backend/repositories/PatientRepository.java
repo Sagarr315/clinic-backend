@@ -11,4 +11,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 	Optional<Patient> findByContact(String contact);
 
 	List<Patient> findByNameContainingOrContactContaining(String name, String contact);
+
+    Long countByClinicId(Long clinicId);
 }
