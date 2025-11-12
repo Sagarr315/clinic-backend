@@ -14,44 +14,112 @@ import jakarta.persistence.Table;
 @Table(name = "bills")
 public class Bill {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	private double amount;
-	private String status; // PENDING, PAID, CANCELLED
-	private LocalDateTime createdAt = LocalDateTime.now();
+    private double consultationFee;
+    private double tax;
+    private double discount;
+    private double totalAmount;
+    private String status;
+    private LocalDateTime createdAt;
 
-	@ManyToOne
-	@JoinColumn(name = "clinic_id", nullable = false)
-	private Clinic clinic;
+    @ManyToOne
+    @JoinColumn(name = "clinic_id", nullable = false)
+    private Clinic clinic;
 
-	@ManyToOne
-	@JoinColumn(name = "appointment_id", nullable = false)
-	private Appointment appointment;
+    @ManyToOne
+    @JoinColumn(name = "appointment_id", nullable = false)
+    private Appointment appointment;
 
-	public double getAmount() {
-		return amount;
-	}
+    // Default constructor for JPA
+    public Bill() {
+        this.createdAt = LocalDateTime.now();
+        this.status = "PENDING";
+    }
 
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
+    // Constructor with realistic values
+    public Bill(Clinic clinic, Appointment appointment) {
+        this();
+        this.clinic = clinic;
+        this.appointment = appointment;
+        this.consultationFee = 500.0; // Real consultation fee
+        this.tax = this.consultationFee * 0.18; // 18% GST
+        this.discount = 0.0; // No discount initially
+        this.totalAmount = this.consultationFee + this.tax - this.discount;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public double getConsultationFee() {
+        return consultationFee;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public void setConsultationFee(double consultationFee) {
+        this.consultationFee = consultationFee;
+    }
 
+    public double getTax() {
+        return tax;
+    }
+
+    public void setTax(double tax) {
+        this.tax = tax;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
+    }
+
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Clinic getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(Clinic clinic) {
+        this.clinic = clinic;
+    }
+
+    public Appointment getAppointment() {
+        return appointment;
+    }
+
+    public void setAppointment(Appointment appointment) {
+        this.appointment = appointment;
+    }
 }

@@ -1,5 +1,5 @@
 package com.clinicapp.backend.controllers;
-
+import java.util.Map;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,8 +7,10 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clinicapp.backend.entity.Appointment;
@@ -38,6 +40,26 @@ public class AppointmentController {
 	@GetMapping("/clinic/{clinicId}")
 	public List<Appointment> getAppointmentsByClinic(@PathVariable Long clinicId) {
 		return appointmentService.getAppointmentsByClinic(clinicId);
+	}
+
+	// NEW: Update appointment status (for doctors/receptionists)
+    @PutMapping("/{id}/status")
+    public Appointment updateStatus(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        String status = request.get("status");
+        return appointmentService.updateStatus(id, status);
+    }
+
+	// NEW: Reschedule appointment
+	@PutMapping("/{id}/reschedule")
+	public Appointment reschedule(@PathVariable Long id, @RequestBody RescheduleRequest req) {
+		return appointmentService.reschedule(id, req.getNewDateTime());
+	}
+
+	// NEW: Cancel appointment
+	@PutMapping("/{id}/cancel")
+	public String cancelAppointment(@PathVariable Long id) {
+		appointmentService.cancelAppointment(id);
+		return "Appointment cancelled successfully";
 	}
 
 	public static class AppointmentRequest {
@@ -103,6 +125,19 @@ public class AppointmentController {
 
 		public void setAppointmentDate(LocalDateTime appointmentDate) {
 			this.appointmentDate = appointmentDate;
+		}
+	}
+
+	// NEW: Reschedule request DTO
+	public static class RescheduleRequest {
+		private String newDateTime;
+
+		public String getNewDateTime() {
+			return newDateTime;
+		}
+
+		public void setNewDateTime(String newDateTime) {
+			this.newDateTime = newDateTime;
 		}
 	}
 }
