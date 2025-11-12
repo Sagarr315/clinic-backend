@@ -61,4 +61,5 @@ Thumbs.db
 .env
 application-*.yml
 application-*.properties
-src/main/resources/application.properties"src/main/resources/application.properties" 
+src/main/resources/application.properties
+src/main/resources/application-*.properties
