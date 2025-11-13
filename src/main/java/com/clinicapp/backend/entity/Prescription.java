@@ -1,65 +1,150 @@
 package com.clinicapp.backend.entity;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "prescriptions")
 public class Prescription {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @OneToOne
+    @JoinColumn(name = "appointment_id")
+    private Appointment appointment;
 
-	private String medicineList;
-	private String notes;
-	private String filePath; // PDF path
-	private LocalDateTime createdAt = LocalDateTime.now();
+    @ManyToOne
+    @JoinColumn(name = "clinic_id")
+    private Clinic clinic;
 
-	@ManyToOne
-	@JoinColumn(name = "clinic_id", nullable = false)
-	private Clinic clinic;
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    private Doctor doctor;
 
-	@ManyToOne
-	@JoinColumn(name = "appointment_id", nullable = false)
-	private Appointment appointment;
+    @ManyToOne
+    @JoinColumn(name = "patient_id")
+    private Patient patient;
 
-	public String getNotes() {
-		return notes;
-	}
+    private String diagnosis;
+    private String notes;
+    private LocalDate followUpDate;
+    private LocalDateTime createdDate;
+    private LocalDate prescriptionDate;
+    private String filePath;
 
-	public void setNotes(String notes) {
-		this.notes = notes;
-	}
+    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Medicine> medicines = new ArrayList<>();
 
-	public String getFilePath() {
-		return filePath;
-	}
+    public Prescription() {
+        this.createdDate = LocalDateTime.now();
+        this.prescriptionDate = LocalDate.now();
+    }
 
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public Appointment getAppointment() {
+        return appointment;
+    }
 
-	public String getMedicineList() {
-		return medicineList;
-	}
+    public void setAppointment(Appointment appointment) {
+        this.appointment = appointment;
+    }
 
-	public void setMedicineList(String medicineList) {
-		this.medicineList = medicineList;
-	}
+    public Clinic getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(Clinic clinic) {
+        this.clinic = clinic;
+    }
+
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
+
+    public String getDiagnosis() {
+        return diagnosis;
+    }
+
+    public void setDiagnosis(String diagnosis) {
+        this.diagnosis = diagnosis;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public LocalDate getFollowUpDate() {
+        return followUpDate;
+    }
+
+    public void setFollowUpDate(LocalDate followUpDate) {
+        this.followUpDate = followUpDate;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public LocalDate getPrescriptionDate() {
+        return prescriptionDate;
+    }
+
+    public void setPrescriptionDate(LocalDate prescriptionDate) {
+        this.prescriptionDate = prescriptionDate;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public List<Medicine> getMedicines() {
+        return medicines;
+    }
+
+    public void setMedicines(List<Medicine> medicines) {
+        this.medicines = medicines;
+    }
+
+    public void addMedicine(Medicine medicine) {
+        medicines.add(medicine);
+        medicine.setPrescription(this);
+    }
 }

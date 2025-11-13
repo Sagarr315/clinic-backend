@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").permitAll() // This expects ROLE_DOCTOR
                         // ADMIN -endpoint for the analysis
                         .requestMatchers("/api/analytics/**").permitAll()
+                        .requestMatchers("/api/prescriptions/**").authenticated()
                         // All other endpoints need authentication
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
