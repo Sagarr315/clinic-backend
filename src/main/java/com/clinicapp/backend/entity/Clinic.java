@@ -21,6 +21,7 @@ public class Clinic {
     private LocalDateTime createdAt;
     private double consultationFee = 500.0;
     private double taxRate = 0.18;
+    private String subdomain;
 
     public Clinic() {
         this.createdAt = LocalDateTime.now();
@@ -88,5 +89,13 @@ public class Clinic {
 
     public void setTaxRate(double taxRate) {
         this.taxRate = taxRate;
+    }
+
+    public String getSubdomain() {
+        return subdomain;
+    }
+
+    public void setSubdomain(String subdomain) {
+        this.subdomain = subdomain;
     }
 }
