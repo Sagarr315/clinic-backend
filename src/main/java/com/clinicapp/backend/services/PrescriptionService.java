@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.clinicapp.backend.entity.*;
 import com.clinicapp.backend.repositories.*;
+
 import java.util.List;
 
 @Service
@@ -83,18 +84,19 @@ public class PrescriptionService {
     private void checkPrescriptionAccess(Prescription prescription) {
         String currentUserRole = getCurrentUserRole();
 
+        // Remove ROLE_ prefix if present
+        if (currentUserRole.startsWith("ROLE_")) {
+            currentUserRole = currentUserRole.substring(5);
+        }
+
         if (currentUserRole.equals("DOCTOR")) {
-            // Regular doctor - can only access their own prescriptions
             Doctor currentDoctor = getCurrentDoctor();
             if (!prescription.getDoctor().getId().equals(currentDoctor.getId())) {
                 throw new RuntimeException("You can only access your own prescriptions");
             }
-        }
-        else if (currentUserRole.equals("ROLE_ADMIN_DOCTOR")) {
-            // Admin doctor - can access ALL prescriptions in their clinic
-
-        }
-        else if (!currentUserRole.equals("ROLE_RECEPTIONIST")) {
+        } else if (currentUserRole.equals("ADMIN_DOCTOR")) {
+            // Admin can access all - no restriction
+        } else {
             throw new RuntimeException("Unauthorized access to prescriptions");
         }
     }
@@ -105,6 +107,15 @@ public class PrescriptionService {
             return ((UserDetails) principal).getAuthorities().iterator().next().getAuthority();
         }
         return principal.toString();
+    }
+
+    public List<Prescription> getAllPrescriptions() {
+        String role = getCurrentUserRole();
+        if (role.equals("DOCTOR")) {
+            Doctor doctor = getCurrentDoctor();
+            return prescriptionRepo.findByDoctorId(doctor.getId());
+        }
+        return prescriptionRepo.findAll(); // For admin/receptionist
     }
 
     private Doctor getCurrentDoctor() {
@@ -127,20 +138,45 @@ public class PrescriptionService {
         private java.time.LocalDate followUpDate;
         private List<MedicineRequest> medicines;
 
-        public Long getAppointmentId() { return appointmentId; }
-        public void setAppointmentId(Long appointmentId) { this.appointmentId = appointmentId; }
+        public Long getAppointmentId() {
+            return appointmentId;
+        }
 
-        public String getDiagnosis() { return diagnosis; }
-        public void setDiagnosis(String diagnosis) { this.diagnosis = diagnosis; }
+        public void setAppointmentId(Long appointmentId) {
+            this.appointmentId = appointmentId;
+        }
 
-        public String getNotes() { return notes; }
-        public void setNotes(String notes) { this.notes = notes; }
+        public String getDiagnosis() {
+            return diagnosis;
+        }
 
-        public java.time.LocalDate getFollowUpDate() { return followUpDate; }
-        public void setFollowUpDate(java.time.LocalDate followUpDate) { this.followUpDate = followUpDate; }
+        public void setDiagnosis(String diagnosis) {
+            this.diagnosis = diagnosis;
+        }
 
-        public List<MedicineRequest> getMedicines() { return medicines; }
-        public void setMedicines(List<MedicineRequest> medicines) { this.medicines = medicines; }
+        public String getNotes() {
+            return notes;
+        }
+
+        public void setNotes(String notes) {
+            this.notes = notes;
+        }
+
+        public java.time.LocalDate getFollowUpDate() {
+            return followUpDate;
+        }
+
+        public void setFollowUpDate(java.time.LocalDate followUpDate) {
+            this.followUpDate = followUpDate;
+        }
+
+        public List<MedicineRequest> getMedicines() {
+            return medicines;
+        }
+
+        public void setMedicines(List<MedicineRequest> medicines) {
+            this.medicines = medicines;
+        }
     }
 
     public static class MedicineRequest {
@@ -150,19 +186,44 @@ public class PrescriptionService {
         private String duration;
         private String instructions;
 
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
+        public String getName() {
+            return name;
+        }
 
-        public String getDosage() { return dosage; }
-        public void setDosage(String dosage) { this.dosage = dosage; }
+        public void setName(String name) {
+            this.name = name;
+        }
 
-        public String getFrequency() { return frequency; }
-        public void setFrequency(String frequency) { this.frequency = frequency; }
+        public String getDosage() {
+            return dosage;
+        }
 
-        public String getDuration() { return duration; }
-        public void setDuration(String duration) { this.duration = duration; }
+        public void setDosage(String dosage) {
+            this.dosage = dosage;
+        }
 
-        public String getInstructions() { return instructions; }
-        public void setInstructions(String instructions) { this.instructions = instructions; }
+        public String getFrequency() {
+            return frequency;
+        }
+
+        public void setFrequency(String frequency) {
+            this.frequency = frequency;
+        }
+
+        public String getDuration() {
+            return duration;
+        }
+
+        public void setDuration(String duration) {
+            this.duration = duration;
+        }
+
+        public String getInstructions() {
+            return instructions;
+        }
+
+        public void setInstructions(String instructions) {
+            this.instructions = instructions;
+        }
     }
 }
