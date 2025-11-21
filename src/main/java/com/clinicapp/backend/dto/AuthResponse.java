@@ -1,42 +1,57 @@
-
 package com.clinicapp.backend.dto;
 
 public class AuthResponse {
-	private String token;
-	private String role;
-	private Long clinicId;
+    private String token;
+    private String role;
+    private Long clinicId;
+    private Long Id;
+    private String clinicSubdomain;
 
-	public AuthResponse() {
-	}
+    public AuthResponse(String token, String role, Long clinicId, Long Id, String clinicSubdomain) {
+        this.token = token;
+        this.role = role;
+        this.clinicId = clinicId;
+        this.Id = Id;
+        this.clinicSubdomain = clinicSubdomain;
+    }
 
-	public AuthResponse(String token, String role, Long clinicId) {
-		this.token = token;
-		this.role = role;
-		this.clinicId = clinicId;
-	}
+    public String getToken() {
+        return token;
+    }
 
-	// Getters and Setters
-	public String getToken() {
-		return token;
-	}
+    public String getRole() {
+        return role;
+    }
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+    public Long getClinicId() {
+        return clinicId;
+    }
 
-	public String getRole() {
-		return role;
-	}
+    public Long getId() {
+        return Id;
+    }
 
-	public void setRole(String role) {
-		this.role = role;
-	}
+    public String getClinicSubdomain() {
+        return clinicSubdomain;
+    }
 
-	public Long getClinicId() {
-		return clinicId;
-	}
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-	public void setClinicId(Long clinicId) {
-		this.clinicId = clinicId;
-	}
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setClinicId(Long clinicId) {
+        this.clinicId = clinicId;
+    }
+
+    public void setUserId(Long Id) {
+        this.Id = Id;
+    }
+
+    public void setClinicSubdomain(String clinicSubdomain) {
+        this.clinicSubdomain = clinicSubdomain;
+    }
 }

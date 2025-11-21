@@ -39,7 +39,7 @@ public class Prescription {
     private String filePath;
 
     @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL)
-    @JsonIgnore
+
     private List<Medicine> medicines = new ArrayList<>();
 
     public Prescription() {

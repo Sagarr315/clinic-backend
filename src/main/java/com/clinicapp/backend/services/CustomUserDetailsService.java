@@ -12,37 +12,45 @@ import com.clinicapp.backend.entity.Doctor;
 import com.clinicapp.backend.entity.Receptionist;
 import com.clinicapp.backend.repositories.DoctorRepository;
 import com.clinicapp.backend.repositories.ReceptionistRepository;
+import java.util.Collections;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-	@Autowired
-	private DoctorRepository doctorRepo;
+    @Autowired
+    private DoctorRepository doctorRepository;
 
-	@Autowired
-	private ReceptionistRepository recepRepo;
+    @Autowired
+    private ReceptionistRepository receptionistRepository;
 
-	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		// SUPER ADMIN FIX
-		if ("superadmin@system.com".equals(email)) {
-			return User.builder().username("superadmin@system.com")
-					.password("$2a$10$c35YCctm29tfOkYZKpSJiu5WgFCYnV7d3.n2Ffd00vmX93009IeAq") // Super@123
-					.authorities(new SimpleGrantedAuthority("ROLE_SUPERADMIN")).build();
-		}
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        // Check doctors first
+        Doctor doctor = doctorRepository.findByEmail(email)
+                .orElse(null);
 
-		Doctor doctor = doctorRepo.findByEmail(email).orElse(null);
-		if (doctor != null) {
-			return User.builder().username(doctor.getEmail()).password(doctor.getPassword())
-					.authorities(new SimpleGrantedAuthority(doctor.getRole())).build();
-		}
+        if (doctor != null) {
+            // DON'T remove ROLE_ prefix - keep it as is
+            return new User(
+                    doctor.getEmail(),
+                    doctor.getPassword(),
+                    Collections.singletonList(new SimpleGrantedAuthority(doctor.getRole()))
+            );
+        }
 
-		Receptionist rec = recepRepo.findByEmail(email).orElse(null);
-		if (rec != null) {
-			return User.builder().username(rec.getEmail()).password(rec.getPassword())
-					.authorities(new SimpleGrantedAuthority(rec.getRole())).build();
-		}
+        // Check receptionists
+        Receptionist receptionist = receptionistRepository.findByEmail(email)
+                .orElse(null);
 
-		throw new UsernameNotFoundException("User not found with email: " + email);
-	}
+        if (receptionist != null) {
+            // DON'T remove ROLE_ prefix - keep it as is
+            return new User(
+                    receptionist.getEmail(),
+                    receptionist.getPassword(),
+                    Collections.singletonList(new SimpleGrantedAuthority(receptionist.getRole()))
+            );
+        }
+
+        throw new UsernameNotFoundException("User not found with email: " + email);
+    }
 }

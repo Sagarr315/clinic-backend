@@ -109,6 +109,10 @@ public class AppointmentService {
     public List<Appointment> getAppointmentsByClinic(Long clinicId) {
         return appointmentRepo.findByClinicId(clinicId);
     }
+    // Returns appointments only for the specified doctor ID
+    public List<Appointment> getAppointmentsByDoctorId(Long doctorId) {
+        return appointmentRepo.findByDoctorId(doctorId);
+    }
 
     public Appointment updateStatus(Long appointmentId, String status) {
         if (appointmentId == null) {
@@ -218,5 +222,14 @@ public class AppointmentService {
             return ((UserDetails) principal).getAuthorities().iterator().next().getAuthority();
         }
         return principal.toString();
+    }
+
+    public Appointment getAppointmentById(Long id) {
+        return appointmentRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+    }
+    // Add this method to your existing AppointmentService
+    public List<Object[]> getPatientAppointmentHistory(Long patientId) {
+        return appointmentRepo.findPatientHistory(patientId);
     }
 }

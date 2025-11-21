@@ -1,8 +1,6 @@
 package com.clinicapp.backend.config;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,71 +20,59 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-	@Autowired
-	private JwtUtils jwtUtils;
+    @Autowired
+    private JwtUtils jwtUtils;
 
-	@Autowired
-	private CustomUserDetailsService userDetailsService;
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-			throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
 
-		String header = request.getHeader("Authorization");
-		String token = null;
-		String username = null;
+        String requestURI = request.getRequestURI();
 
-		if (header != null && header.startsWith("Bearer ")) {
-			token = header.substring(7);
-			username = jwtUtils.getUsername(token);
-		}
+        if (isPublicEndpoint(requestURI)) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        String header = request.getHeader("Authorization");
+        String token = null;
+        String username = null;
+        // ADD THIS LINE ↓
+        Long clinicId = null;
 
-			if (jwtUtils.validateToken(token)) {
-				// SECURITY FIX: Validate clinic access
-				if (!hasAccessToClinic(request, token)) {
-					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-					response.getWriter().write("Access denied to this clinic");
-					return;
-				}
+        if (header != null && header.startsWith("Bearer ")) {
+            token = header.substring(7);
+            username = jwtUtils.getUsername(token);
+            // ADD THIS LINE ↓
+            clinicId = jwtUtils.getClinicId(token);
+        }
 
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
-						null, userDetails.getAuthorities());
-				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(authToken);
-			}
-		}
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-		chain.doFilter(request, response);
-	}
+            if (jwtUtils.validateToken(token)) {
 
-	private boolean hasAccessToClinic(HttpServletRequest request, String token) {
-		// Super Admin can access everything
-		if ("ROLE_SUPERADMIN".equals(jwtUtils.getRole(token))) {
-			return true;
-		}
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-		// Extract clinicId from URL path
-		Long requestedClinicId = extractClinicIdFromPath(request.getRequestURI());
-		Long tokenClinicId = jwtUtils.getClinicId(token);
+                // CHANGE THIS LINE ↓ (replace WebAuthenticationDetailsSource with clinicId)
+                authToken.setDetails(clinicId);
 
-		// If no clinic in path, allow access
-		if (requestedClinicId == null) {
-			return true;
-		}
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
 
-		// Validate user has access to requested clinic
-		return requestedClinicId.equals(tokenClinicId);
-	}
+        chain.doFilter(request, response);
+    }
 
-	private Long extractClinicIdFromPath(String path) {
-		Pattern pattern = Pattern.compile("/clinic/(\\d+)");
-		Matcher matcher = pattern.matcher(path);
-		if (matcher.find()) {
-			return Long.parseLong(matcher.group(1));
-		}
-		return null;
-	}
+    private boolean isPublicEndpoint(String requestURI) {
+        return requestURI.equals("/api/auth/login") ||
+                requestURI.equals("/api/hello") ||
+                requestURI.startsWith("/api/superadmin/") ||
+                requestURI.startsWith("/api/clinics/public") ||
+                requestURI.startsWith("/api/clinics/subdomain/");
+    }
 }

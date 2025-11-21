@@ -41,7 +41,17 @@ public class AppointmentController {
 	public List<Appointment> getAppointmentsByClinic(@PathVariable Long clinicId) {
 		return appointmentService.getAppointmentsByClinic(clinicId);
 	}
+    // Get appointments for specific doctor (used by doctors to see their own appointments)
+    @GetMapping("/doctor/{doctorId}")
+    public List<Appointment> getAppointmentsByDoctor(@PathVariable Long doctorId) {
+        return appointmentService.getAppointmentsByDoctorId(doctorId);
+    }
 
+    // Get single appointment by ID - ADD THIS
+    @GetMapping("/{id}")
+    public Appointment getAppointmentById(@PathVariable Long id) {
+        return appointmentService.getAppointmentById(id);
+    }
 	// NEW: Update appointment status (for doctors/receptionists)
     @PutMapping("/{id}/status")
     public Appointment updateStatus(@PathVariable Long id, @RequestBody Map<String, String> request) {
@@ -61,6 +71,11 @@ public class AppointmentController {
 		appointmentService.cancelAppointment(id);
 		return "Appointment cancelled successfully";
 	}
+    // Add this endpoint to your existing AppointmentController
+    @GetMapping("/patient/{patientId}/history")
+    public List<Object[]> getPatientAppointmentHistory(@PathVariable Long patientId) {
+        return appointmentService.getPatientAppointmentHistory(patientId);
+    }
 
 	public static class AppointmentRequest {
 		private Long doctorId;

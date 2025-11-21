@@ -13,15 +13,15 @@ import com.clinicapp.backend.services.AuthService;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
-	@Autowired
-	private AuthService authService;
+    @Autowired
+    private AuthService authService;
 
-	// ONLY LOGIN IS PUBLIC - NO REGISTRATION
-	@PostMapping("/login")
-	public AuthResponse login(@RequestBody LoginRequest request) {
-		return authService.login(request);
-	}
+    // ONLY LOGIN IS PUBLIC - NO REGISTRATION
+    @PostMapping("/login")
+    public AuthResponse login(@RequestBody LoginRequest request) {
+        return authService.login(request);
+    }
 }

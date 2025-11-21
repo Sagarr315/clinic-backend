@@ -72,6 +72,16 @@ public class PrescriptionService {
         return prescription;
     }
 
+
+    private Long getCurrentClinicId() {
+        Object details = SecurityContextHolder.getContext().getAuthentication().getDetails();
+        if (details instanceof Long) {
+            return (Long) details;
+        }
+        throw new RuntimeException("Clinic ID not found in security context");
+    }
+
+
     public byte[] downloadPrescriptionPDF(Long prescriptionId) {
         Prescription prescription = prescriptionRepo.findById(prescriptionId)
                 .orElseThrow(() -> new RuntimeException("Prescription not found"));
@@ -82,6 +92,7 @@ public class PrescriptionService {
     }
 
     private void checkPrescriptionAccess(Prescription prescription) {
+        Long currentClinicId = getCurrentClinicId();
         String currentUserRole = getCurrentUserRole();
 
         // Remove ROLE_ prefix if present
@@ -89,13 +100,21 @@ public class PrescriptionService {
             currentUserRole = currentUserRole.substring(5);
         }
 
+        // FIRST CHECK: Prescription must belong to current clinic
+        if (!prescription.getClinic().getId().equals(currentClinicId)) {
+            throw new RuntimeException("Prescription not found in your clinic");
+        }
+
+        // THEN CHECK role-based access
         if (currentUserRole.equals("DOCTOR")) {
             Doctor currentDoctor = getCurrentDoctor();
             if (!prescription.getDoctor().getId().equals(currentDoctor.getId())) {
                 throw new RuntimeException("You can only access your own prescriptions");
             }
         } else if (currentUserRole.equals("ADMIN_DOCTOR")) {
-            // Admin can access all - no restriction
+            // Admin can access all prescriptions in their clinic
+        } else if (currentUserRole.equals("RECEPTIONIST")) {
+            // Receptionist can access all prescriptions in their clinic
         } else {
             throw new RuntimeException("Unauthorized access to prescriptions");
         }
@@ -110,12 +129,21 @@ public class PrescriptionService {
     }
 
     public List<Prescription> getAllPrescriptions() {
+        Long clinicId = getCurrentClinicId();
         String role = getCurrentUserRole();
+
+        // Remove ROLE_ prefix if present
+        if (role.startsWith("ROLE_")) {
+            role = role.substring(5);
+        }
+
         if (role.equals("DOCTOR")) {
             Doctor doctor = getCurrentDoctor();
-            return prescriptionRepo.findByDoctorId(doctor.getId());
+            return prescriptionRepo.findByDoctorIdAndClinicId(doctor.getId(), clinicId);
         }
-        return prescriptionRepo.findAll(); // For admin/receptionist
+
+        // For admin/receptionist - only their clinic's prescriptions
+        return prescriptionRepo.findByClinicId(clinicId);
     }
 
     private Doctor getCurrentDoctor() {
